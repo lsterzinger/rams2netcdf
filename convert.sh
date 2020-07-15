@@ -1,6 +1,15 @@
 #! /bin/bash
 dir=$1
 outname=$2
+
+scriptdir="${0%/*}"
+
+echo "Would you like to delete the individual netCDF files after completion? (y/n)"
+read delete
+
+echo "Add time variable? (y/n)"
+read addvar
+
 for f in $dir/*g1.h5
 do 
 
@@ -20,26 +29,21 @@ echo "Combining files"
 ncecat $dir/*g1.nc $outname
 ncrename -d record,time $outname
 
-echo "Add time variable? (y/n)"
-read addvar
-
 if [ $addvar == 'y' ]; then
     echo "Adding time variable"
-    python ./times_to_nc.py $dir $outname
+    python $scriptdir/times_to_nc.py $dir $outname
+
+else
+    echo "Not adding time variable"
 fi
 
-echo "Would you like to delete the individual netCDF files? (y/n)"
-read delete
 
 if [ $delete == 'y' ]; then
     echo "Removing old files"
     rm -f $dir/*g1.nc
 
-elif [ $delete == 'n' ]; then
-    echo "Not deleting files"
-
 else 
-    echo "Command not recognized, exiting"
+    echo "Not deleting files"
 
 fi
 
